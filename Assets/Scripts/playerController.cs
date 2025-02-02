@@ -51,28 +51,28 @@ public class playerComponent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         //attacking cool down if
-        if (attackingCoolDown <= 0 && playerHealth > 0)  // If the player is not attacking and has health.
+        if (attackingCoolDown <= 0 && playerHealth > 0)
         {
             rb2d.constraints = RigidbodyConstraints2D.None;
-            rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;  // So that the player doesn't rotate when moving.
+            rb2d.constraints = RigidbodyConstraints2D.FreezeRotation;
 
 
             //movement
-            moveInput.x = Input.GetAxisRaw("Horizontal"); // calculates the movement of the player on the x axis. {A & D keys}
-            moveInput.y = Input.GetAxisRaw("Vertical"); // calculates the movement of the player on the y axis. {W & S keys}
-            moveInput.Normalize(); // So that the player doesn't move faster when moving diagonally.
+            moveInput.x = Input.GetAxisRaw("Horizontal");
+            moveInput.y = Input.GetAxisRaw("Vertical");
+            moveInput.Normalize();
 
-            if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y)) 
+            if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
             {
                 moveInput.y = 0;
-                rb2d.velocity = moveInput * moveSpeed;
+                rb2d.linearVelocity = moveInput * moveSpeed;
             }
             else
             {
                 moveInput.x = 0;
-                rb2d.velocity = moveInput * moveSpeed;
+                rb2d.linearVelocity = moveInput * moveSpeed;
             }
 
             //walking anims
@@ -98,7 +98,7 @@ public class playerComponent : MonoBehaviour
             }
 
             //idle anims
-            if (moveInput.y == 0 && moveInput.x == 0) // if player is not moving in any direction:
+            if (moveInput.y == 0 && moveInput.x == 0)
             {
                 if (direction == 0)
                 {
@@ -119,9 +119,9 @@ public class playerComponent : MonoBehaviour
             }
 
             //attacking
-            if (Input.GetKeyDown(KeyCode.Space)) // Calculates if the attack key is pressed.
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (direction == 0) // we have 4 different directions for the player to attack in.: 0, 1, 2, 3
+                if (direction == 0)
                 {
                     playerAnim.Play("playerAttackD");
                     attackingCoolDown = 0.4f;
@@ -143,35 +143,35 @@ public class playerComponent : MonoBehaviour
                 }
 
                 //shooting arrows
-                if (arrowCount > 0 && weaponInUse == 1) // if statement only runs if the player has arrows.
+                if (arrowCount > 0 && weaponInUse == 1)
                 {
-                    PlayerPrefs.SetInt("ArrowCount", arrowCount - 1); // PlayerPrefs is a way to save data between scenes, in Unity. (In this case, the arrow count.)
-                    if (direction == 0) // down direction
-                    {// Quaternion.Euler is used to rotate the arrow in the direction the player is facing.(may need to adjust the values, depending on the sprite)
-                        Instantiate(arrowPrefab, transform.position, Quaternion.Euler(new Vector3(0, 0, 270))); 
+                    PlayerPrefs.SetInt("ArrowCount", arrowCount - 1);
+                    if (direction == 0)
+                    {
+                        Instantiate(arrowPrefab, transform.position, Quaternion.Euler(new Vector3(0, 0, 270)));
                     }
-                    if (direction == 1) // right direction
+                    if (direction == 1)
                     {
                         Instantiate(arrowPrefab, transform.position, Quaternion.Euler(new Vector3(0, 0, 0)));
                     }
-                    if (direction == 2) // left direction
+                    if (direction == 2)
                     {
                         Instantiate(arrowPrefab, transform.position, Quaternion.Euler(new Vector3(0, 0, 180)));
                     }
-                    if (direction == 3) // up direction
+                    if (direction == 3)
                     {
                         Instantiate(arrowPrefab, transform.position, Quaternion.Euler(new Vector3(0, 0, 90)));
                     }
                 }
             }
         }
-        else // if the player is attacking or has no health:
+        else
         {
             rb2d.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
         //changing weapons
-        if (Input.GetKey(KeyCode.Alpha1)) // Alpha1 is the number 1 on the keyboard. This will change the weapon the player is using.
+        if (Input.GetKey(KeyCode.Alpha1))
         {
             sword1.SetActive(true);
             bow1.SetActive(false);
@@ -181,25 +181,25 @@ public class playerComponent : MonoBehaviour
         {
             sword1.SetActive(false);
             bow1.SetActive(true);
-            weaponInUse = 1; // we need this to be able to shoot arrows. Line 146 ^ above.
+            weaponInUse = 1;
         }
-        if (Input.GetKeyDown(KeyCode.H)) // Using health potion, if the player has any, use H key.
+        if (Input.GetKeyDown(KeyCode.H))
         {
-            if (healthPotionCount > 0 && playerHealth < 3) // Can use a Health Potion only if the player has health potions AND is not at full health.
-            { 
-                playerHealth++; // ++ adds 1 to the player's health.
-                PlayerPrefs.SetInt("HealthPotionCount", healthPotionCount - 1); // SetInt to save the new health potion count if one is used.
+            if (healthPotionCount > 0 && playerHealth < 3)
+            {
+                playerHealth++;
+                PlayerPrefs.SetInt("HealthPotionCount", healthPotionCount - 1);
             }
         }
 
         //attacking cool down timer
         if (attackingCoolDown > 0)
         {
-            attackingCoolDown -= Time.deltaTime; // subtracts time from the attackingCoolDown variable (about one second)
+            attackingCoolDown -= Time.deltaTime;
         }
 
         //loosing health
-        if (playerHealth == 3) // 3 hearts
+        if (playerHealth == 3)
         {
             heart1.SetActive(true);
             heart2.SetActive(true);
@@ -223,30 +223,31 @@ public class playerComponent : MonoBehaviour
             heart2.SetActive(false);
             heart3.SetActive(false);
             gameOver.Play("gameOverAnim");
-            gameObject.GetComponent<Animator>().speed = 0; // Setting the speed of the animator to "off" with 0 for a game over.
+            gameObject.GetComponent<Animator>().speed = 0;
         }
 
         coinCount = PlayerPrefs.GetInt("ScoreCount");
-        inGameCoinText.text = coinCount.ToString(); // Setting the text to the coin count int.
+        inGameCoinText.text = coinCount.ToString();
 
         arrowCount = PlayerPrefs.GetInt("ArrowCount");
-        inGameArrowText.text = arrowCount.ToString(); // Setting the text to the arrow count int.
+        inGameArrowText.text = arrowCount.ToString();
 
         healthPotionCount = PlayerPrefs.GetInt("HealthPotionCount");
         inGameHealthPotionText.text = healthPotionCount.ToString();
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////
     }
-    //enemy contact / hurting
+
+    //enemy contanct / hurting
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy") && hurting == false && playerHealth > 0) // If the player collides with an enemy and is not already hurting and has health.
+        if (collision.gameObject.CompareTag("Enemy") && hurting == false && playerHealth > 0)
         {
-            playerSprite.GetComponent<SpriteRenderer>().color = Color.red; // makes the player sprite red when hurt.
-            playerHealth--; // takes one heart.
+            playerSprite.GetComponent<SpriteRenderer>().color = Color.red;
+            playerHealth--;
             StartCoroutine(whitecolor());
             if (playerHealth > 0)
-            {  // does a knock-back effect when the player is hurt:
+            {
                 transform.position = Vector2.MoveTowards(transform.position, collision.gameObject.transform.position, -70 * Time.deltaTime);
             }
             hurting = true;
@@ -254,16 +255,16 @@ public class playerComponent : MonoBehaviour
         }
     }
 
-    public void OnTriggerEnter2D(Collider2D collision) // Anything that collides with the player.
+    public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Heart") && playerHealth < 3)  // if the player collides with a heart has less than 3 hearts -> pick up the heart.
+        if (collision.gameObject.CompareTag("Heart") && playerHealth < 3)
         {
-            playerHealth++; // adds the new heart.
+            playerHealth++;
             Destroy(collision.gameObject);
         }
         if (collision.gameObject.CompareTag("Coin"))
         {
-            PlayerPrefs.SetInt("ScoreCount", coinCount + 1); // Saves and adds new coin(s) to the coin count.
+            PlayerPrefs.SetInt("ScoreCount", coinCount + 1);
             Destroy(collision.gameObject);
         }
         if (collision.gameObject.CompareTag("Shop"))
@@ -286,20 +287,20 @@ public class playerComponent : MonoBehaviour
         yield return new WaitForSeconds(2);
         if (playerHealth > 0)
         {
-            playerSprite.GetComponent<SpriteRenderer>().color = Color.white; // if player still has health, change back to white sprite (not getting hurt)
+            playerSprite.GetComponent<SpriteRenderer>().color = Color.white;
         }
         hurting = false;
-        GetComponent<BoxCollider2D>().enabled = false; // to reset collision so player can re-engage with collidable objects.
+        GetComponent<BoxCollider2D>().enabled = false;
         GetComponent<BoxCollider2D>().enabled = true;
 
     }
 
-    public void playAgain() // attached to the gameover.
+    public void playAgain()
     {
-        SceneManager.LoadScene(1); // would have this set to "1", instead of "0", if we had a main menu setup.
+        SceneManager.LoadScene(0);
     }
 
-    public void mainMenu()  // we dont have a main menu setup, but this is how we would go back to the main menu.
+    public void mainMenu()
     {
         SceneManager.LoadScene(0);
     }
@@ -314,9 +315,9 @@ public class playerComponent : MonoBehaviour
     }
     public void buyHealthPotion()
     {
-        if (coinCount >= 10)
+        if (coinCount >= 5)
         {
-            PlayerPrefs.SetInt("ScoreCount", coinCount - 10);
+            PlayerPrefs.SetInt("ScoreCount", coinCount - 5);
             PlayerPrefs.SetInt("HealthPotionCount", healthPotionCount + 1);
         }
     }
