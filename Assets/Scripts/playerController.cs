@@ -237,5 +237,87 @@ public class playerComponent : MonoBehaviour
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
+    //enemy contact / hurting
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy") && hurting == false && playerHealth > 0) // If the player collides with an enemy and is not already hurting and has health.
+        {
+            playerSprite.GetComponent<SpriteRenderer>().color = Color.red; // makes the player sprite red when hurt.
+            playerHealth--; // takes one heart.
+            StartCoroutine(whitecolor());
+            if (playerHealth > 0)
+            {  // does a knock-back effect when the player is hurt:
+                transform.position = Vector2.MoveTowards(transform.position, collision.gameObject.transform.position, -70 * Time.deltaTime);
+            }
+            hurting = true;
 
+        }
+    }
+
+    public void OnTriggerEnter2D(Collider2D collision) // Anything that collides with the player.
+    {
+        if (collision.gameObject.CompareTag("Heart") && playerHealth < 3)  // if the player collides with a heart has less than 3 hearts -> pick up the heart.
+        {
+            playerHealth++; // adds the new heart.
+            Destroy(collision.gameObject);
+        }
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            PlayerPrefs.SetInt("ScoreCount", coinCount + 1); // Saves and adds new coin(s) to the coin count.
+            Destroy(collision.gameObject);
+        }
+        if (collision.gameObject.CompareTag("Shop"))
+        {
+            shopButtons.SetActive(true);
+        }
+    }
+
+    public void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Shop"))
+        {
+            shopButtons.SetActive(false);
+        }
+    }
+
+    IEnumerator whitecolor()
+    {
+
+        yield return new WaitForSeconds(2);
+        if (playerHealth > 0)
+        {
+            playerSprite.GetComponent<SpriteRenderer>().color = Color.white; // if player still has health, change back to white sprite (not getting hurt)
+        }
+        hurting = false;
+        GetComponent<BoxCollider2D>().enabled = false; // to reset collision so player can re-engage with collidable objects.
+        GetComponent<BoxCollider2D>().enabled = true;
+
+    }
+
+    public void playAgain() // attached to the gameover.
+    {
+        SceneManager.LoadScene(1); // would have this set to "1", instead of "0", if we had a main menu setup.
+    }
+
+    public void mainMenu()  // we dont have a main menu setup, but this is how we would go back to the main menu.
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void buyArrow()
+    {
+        if (coinCount >= 5)
+        {
+            PlayerPrefs.SetInt("ScoreCount", coinCount - 5);
+            PlayerPrefs.SetInt("ArrowCount", arrowCount + 1);
+        }
+    }
+    public void buyHealthPotion()
+    {
+        if (coinCount >= 10)
+        {
+            PlayerPrefs.SetInt("ScoreCount", coinCount - 10);
+            PlayerPrefs.SetInt("HealthPotionCount", healthPotionCount + 1);
+        }
+    }
 }
